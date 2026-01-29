@@ -1,5 +1,12 @@
 const socket = io();
 
+/* ===== notification permission ===== */
+if ("Notification" in window) {
+  if (Notification.permission === "default") {
+    Notification.requestPermission();
+  }
+}
+
 // room (from query)
 const params = new URLSearchParams(location.search);
 const room = params.get("room");
