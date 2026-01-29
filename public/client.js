@@ -65,30 +65,27 @@ if (backToRoomsBtn) {
   });
 }
 
-function notifyMessage(room, text) {
-  // ★ 最近入った部屋以外は通知しない
-  if (!isRecentRoom(room)) return;
+
+function notifyMessage(msg) {
+  // 最近入った部屋以外は通知しない
+  if (!isRecentRoom(msg.room)) return;
+
+  // 今見ている部屋なら通知しない
+  if (msg.room === room) return;
 
   if (!("Notification" in window)) return;
   if (Notification.permission !== "granted") return;
 
-  new Notification(`新着メッセージ [${room}]`, {
-    body: text.length > 80 ? text.slice(0, 80) + "…" : text,
-    icon: "/icon.png" // なければこの行消してOK
-  });
-                   }
+  const body =
+    msg.type === "image"
+      ? "📷 画像が送信されました"
+      : (msg.text || "").slice(0, 80);
 
-function notifyMessage(room, text) {
-  // 今見てる部屋なら通知しない
-  if (room === currentRoom) return;
-
-  if (!isRecentRoom(room)) return;
-  if (Notification.permission !== "granted") return;
-
-  new Notification(`新着メッセージ [${room}]`, {
-    body: text
+  new Notification(`新着メッセージ [${msg.room}]`, {
+    body
   });
 }
+
 // 初回表示
 function showSetupIfNeeded() {
   if (username && color) {
