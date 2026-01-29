@@ -77,6 +77,18 @@ function notifyMessage(room, text) {
     icon: "/icon.png" // なければこの行消してOK
   });
                    }
+
+function notifyMessage(room, text) {
+  // 今見てる部屋なら通知しない
+  if (room === currentRoom) return;
+
+  if (!isRecentRoom(room)) return;
+  if (Notification.permission !== "granted") return;
+
+  new Notification(`新着メッセージ [${room}]`, {
+    body: text
+  });
+}
 // 初回表示
 function showSetupIfNeeded() {
   if (username && color) {
