@@ -339,7 +339,9 @@ socket.on("chat message", (m) => {
   messagesEl.appendChild(el);
   messagesEl.scrollTop = messagesEl.scrollHeight;
 });
-
+// ★ 通知を出す
+  notifyMessage(msg.room, msg.text);
+});
 // ユーザー一覧
 socket.on("userList", (list) => {
   userListEl.innerHTML = "";
