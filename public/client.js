@@ -310,6 +310,17 @@ socket.on("roomNotFound", () => {
   location.replace("/rooms.html");
 });
 
+const KEY_RECENT = "chat_recent_rooms";
+
+function isRecentRoom(room) {
+  try {
+    const list = JSON.parse(localStorage.getItem(KEY_RECENT) || "[]");
+    return list.includes(room);
+  } catch {
+    return false;
+  }
+}
+
 // 新着
 socket.on("chat message", (m) => {
   const el = makeMessageEl(m);
