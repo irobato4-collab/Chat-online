@@ -65,6 +65,18 @@ if (backToRoomsBtn) {
   });
 }
 
+function notifyMessage(room, text) {
+  // ★ 最近入った部屋以外は通知しない
+  if (!isRecentRoom(room)) return;
+
+  if (!("Notification" in window)) return;
+  if (Notification.permission !== "granted") return;
+
+  new Notification(`新着メッセージ [${room}]`, {
+    body: text.length > 80 ? text.slice(0, 80) + "…" : text,
+    icon: "/icon.png" // なければこの行消してOK
+  });
+                   }
 // 初回表示
 function showSetupIfNeeded() {
   if (username && color) {
