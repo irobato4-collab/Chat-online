@@ -9,7 +9,9 @@ if ("Notification" in window) {
 if ("Notification" in window && Notification.permission !== "granted") {
   Notification.requestPermission();
 }
-
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js");
+}
 // room (from query)
 const params = new URLSearchParams(location.search);
 const room = params.get("room");
