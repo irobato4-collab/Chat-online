@@ -55,7 +55,7 @@ function sendPush(room, text) {
       })
     ).catch(() => {});
   }
-  }
+  
 
 /* ===== 暗号化ユーティリティ ===== */
 const ALGO = "aes-256-gcm";
