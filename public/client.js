@@ -316,7 +316,20 @@ function makeMessageEl(msg) {
 
   return li;
 }
+async function subscribePush() {
+  if (!("serviceWorker" in navigator)) return;
 
+  const reg = await navigator.serviceWorker.ready;
+
+  const sub = await reg.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: VAPID_PUBLIC_KEY
+  });
+
+  socket.emit("push-subscribe", sub);
+}
+
+subscribePush();
 // ルーム参加して履歴要求
 socket.emit("joinRoom", { room });
 
