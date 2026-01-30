@@ -407,6 +407,14 @@ io.on("connection", (socket) => {
     try {
       if (!room || !safeRoomName(room)) return;
       if (!msg || !msg.id) return;
+      if (isRecentRoom(msg.room)) {
+    sendPush(msg.room,
+      msg.type === "image"
+        ? "📷 画像が送信されました"
+        : msg.text
+    );
+  }
+});
 
       const loaded = await loadRoomData(room);
       if (!loaded) return;
