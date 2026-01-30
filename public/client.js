@@ -65,8 +65,10 @@ if (backToRoomsBtn) {
   });
 }
 
-
 function notifyMessage(msg) {
+  // 自分のメッセージは通知しない
+  if (msg.userId === userId) return;
+
   // 最近入った部屋以外は通知しない
   if (!isRecentRoom(msg.room)) return;
 
