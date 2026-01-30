@@ -89,7 +89,7 @@ function notifyMessage(msg) {
 
   // ★ ここが重要
   if (msg.ts <= lastActive) return;
-  if (msg.ts <= lastActive) return;
+  
   if (!("Notification" in window)) return;
   if (Notification.permission !== "granted") return;
 
