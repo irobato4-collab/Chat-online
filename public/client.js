@@ -50,29 +50,15 @@ const KEY_COLOR = "chat_color";
 const KEY_AVATAR = "chat_avatar";
 const KEY_UID = "chat_user_id";
 const KEY_LAST_ACTIVE = "chat_last_active";
-
 let lastActive = Number(localStorage.getItem(KEY_LAST_ACTIVE) || 0);
 
 function updateLastActive() {
   lastActive = Date.now();
   localStorage.setItem(KEY_LAST_ACTIVE, String(lastActive));
 }
-
-window.addEventListener("focus", updateLastActive);
-document.addEventListener("visibilitychange", () => {
-  if (!document.hidden) updateLastActive();
-});
 
 // 初回
 updateLastActive();
-// 起動時
-let lastActive = Number(localStorage.getItem(KEY_LAST_ACTIVE) || 0);
-
-// アクティブ更新
-function updateLastActive() {
-  lastActive = Date.now();
-  localStorage.setItem(KEY_LAST_ACTIVE, String(lastActive));
-}
 
 window.addEventListener("focus", updateLastActive);
 document.addEventListener("visibilitychange", () => {
