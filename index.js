@@ -3,7 +3,15 @@ import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import crypto from "crypto";
+import webpush from "web-push";
 
+webpush.setVapidDetails(
+  "mailto:test@example.com",
+  process.env.VAPID_PUBLIC_KEY,
+  process.env.VAPID_PRIVATE_KEY
+);
+
+const pushSubs = new Map(); // socket.id → subscription
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
@@ -35,6 +43,19 @@ app.use(express.static("public"));
 app.use(express.json({ limit: "10mb" }));
 
 let users = {}; // socket.id -> user
+
+function sendPush(room, text) {
+  for (const sub of pushSubs.values()) {
+    webpush.sendNotification(
+      sub,
+      JSON.stringify({
+        title: `新着メッセージ [${room}]`,
+        body: text,
+        room
+      })
+    ).catch(() => {});
+  }
+  }
 
 /* ===== 暗号化ユーティリティ ===== */
 const ALGO = "aes-256-gcm";
@@ -337,7 +358,16 @@ io.on("connection", async (socket) => {
     users[socket.id] = user;
     io.emit("userList", Object.values(users));
   });
+io.on("connection", (socket) => {
 
+  socket.on("push-subscribe", (sub) => {
+    pushSubs.set(socket.id, sub);
+  });
+
+  socket.on("disconnect", () => {
+    pushSubs.delete(socket.id);
+  });
+});
   // ルーム入室（履歴送る）＋30日超画像を掃除（履歴＆ファイル）
   socket.on("joinRoom", async ({ room }) => {
     try {
