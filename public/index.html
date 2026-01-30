@@ -6,6 +6,9 @@
 <title>chat app</title>
 
 <script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js");
+}
   if (localStorage.getItem("auth") !== "ok") {
     location.replace("/password.html");
   }
