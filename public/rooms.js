@@ -14,7 +14,7 @@ const recentRoomsEl = document.getElementById("recentRooms");
 const logoutBtn = document.getElementById("logoutBtn");
 
 const KEY_RECENT = "chat_recent_rooms";
-
+const MAX_RECENT = 5
 let selectedRoom = null;
 
 /* ===== utils ===== */
@@ -40,6 +40,9 @@ function addRecent(room, existingRooms) {
 
   const list = getRecent().filter(r => r !== room);
   list.unshift(room);
+  if (list.length > MAX_RECENT) {
+    list.length = MAX_RECENT;
+  }
   setRecent(list);
   renderRecent(existingRooms);
 }
