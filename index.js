@@ -351,22 +351,25 @@ res.send(imageBuffer);
 });
 
 /* ===== socket.io ===== */
-io.on("connection", async (socket) => {
+io.on("connection", (socket) => {
   console.log("connected:", socket.id);
 
   socket.on("userJoin", (user) => {
     users[socket.id] = user;
     io.emit("userList", Object.values(users));
   });
-io.on("connection", (socket) => {
 
   socket.on("push-subscribe", (sub) => {
     pushSubs.set(socket.id, sub);
   });
 
   socket.on("disconnect", () => {
+    delete users[socket.id];
     pushSubs.delete(socket.id);
+    io.emit("userList", Object.values(users));
   });
+
+  // ↓ joinRoom, chat message, requestDelete など全部ここに入れる
 });
   // ルーム入室（履歴送る）＋30日超画像を掃除（履歴＆ファイル）
   socket.on("joinRoom", async ({ room }) => {
@@ -407,15 +410,7 @@ io.on("connection", (socket) => {
     try {
       if (!room || !safeRoomName(room)) return;
       if (!msg || !msg.id) return;
-      if (isRecentRoom(msg.room)) {
-    sendPush(msg.room,
-      msg.type === "image"
-        ? "📷 画像が送信されました"
-        : msg.text
-    );
-  }
-});
-
+      
       const loaded = await loadRoomData(room);
       if (!loaded) return;
 
