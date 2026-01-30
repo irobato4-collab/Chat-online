@@ -6,6 +6,9 @@ if ("Notification" in window) {
     Notification.requestPermission();
   }
 }
+if ("Notification" in window && Notification.permission !== "granted") {
+  Notification.requestPermission();
+}
 
 // room (from query)
 const params = new URLSearchParams(location.search);
