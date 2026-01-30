@@ -342,14 +342,16 @@ function isRecentRoom(room) {
   }
 }
 
-// 新着
 socket.on("chat message", (m) => {
   const el = makeMessageEl(m);
   messagesEl.appendChild(el);
   messagesEl.scrollTop = messagesEl.scrollHeight;
-});
-// ★ 通知を出す
-  notifyMessage(msg.room, msg.text);
+
+  // ★ 通知
+  notifyMessage({
+    room,
+    ...m
+  });
 });
 // ユーザー一覧
 socket.on("userList", (list) => {
