@@ -83,16 +83,12 @@ if (backToRoomsBtn) {
     location.href = "/rooms.html";
   });
 }
-
 function notifyMessage(msg) {
-  // 自分のメッセージは通知しない
   if (msg.userId === userId) return;
-
-  // 最近入った部屋以外は通知しない
   if (!isRecentRoom(msg.room)) return;
 
-  // 今見ている部屋なら通知しない
-  if (msg.room === room) return;
+  // ★ ここが重要
+  if (msg.ts <= lastActive) return;
 
   if (!("Notification" in window)) return;
   if (Notification.permission !== "granted") return;
@@ -102,11 +98,8 @@ function notifyMessage(msg) {
       ? "📷 画像が送信されました"
       : (msg.text || "").slice(0, 80);
 
-  new Notification(`新着メッセージ [${msg.room}]`, {
-    body
-  });
+  new Notification(`新着メッセージ [${msg.room}]`, { body });
 }
-
 // 初回表示
 function showSetupIfNeeded() {
   if (username && color) {
