@@ -349,7 +349,6 @@ res.send(imageBuffer);
     res.sendStatus(500);
   }
 });
-
 /* ===== socket.io ===== */
 io.on("connection", (socket) => {
   console.log("connected:", socket.id);
@@ -363,15 +362,7 @@ io.on("connection", (socket) => {
     pushSubs.set(socket.id, sub);
   });
 
-  socket.on("disconnect", () => {
-    delete users[socket.id];
-    pushSubs.delete(socket.id);
-    io.emit("userList", Object.values(users));
-  });
-
-  // ↓ joinRoom, chat message, requestDelete など全部ここに入れる
-});
-  // ルーム入室（履歴送る）＋30日超画像を掃除（履歴＆ファイル）
+  // ルーム入室
   socket.on("joinRoom", async ({ room }) => {
     try {
       if (!room || !safeRoomName(room)) return;
@@ -383,6 +374,59 @@ io.on("connection", (socket) => {
         socket.emit("roomNotFound", room);
         return;
       }
+
+      const before = Array.isArray(loaded.data.messages) ? loaded.data.messages : [];
+      const { keep, remove } = splitOldImages(before);
+
+      if (remove.length) {
+        loaded.data.messages = keep;
+        await saveRoomData(room, loaded.data, loaded.sha);
+        for (const m of remove) {
+          if (m?.path) await deleteImageFileIfPossible(m.path);
+        }
+      }
+
+      socket.emit("history", { room, msgs: keep });
+    } catch (e) {
+      console.error("joinRoom error:", e);
+    }
+  });
+
+  // メッセージ送信
+  socket.on("chat message", async ({ room, msg }) => {
+    try {
+      if (!room || !safeRoomName(room)) return;
+      if (!msg || !msg.id) return;
+
+      const loaded = await loadRoomData(room);
+      if (!loaded) return;
+
+      if (!msg.ts) msg.ts = Date.now();
+
+      let messages = loaded.data.messages || [];
+      messages.push(msg);
+
+      const { keep, remove } = splitOldImages(messages);
+      loaded.data.messages = keep.slice(-MAX_MESSAGES);
+
+      await saveRoomData(room, loaded.data, loaded.sha);
+
+      for (const m of remove) {
+        if (m?.path) await deleteImageFileIfPossible(m.path);
+      }
+
+      io.to(room).emit("chat message", msg);
+    } catch (e) {
+      console.error("chat message error:", e);
+    }
+  });
+
+  socket.on("disconnect", () => {
+    delete users[socket.id];
+    pushSubs.delete(socket.id);
+    io.emit("userList", Object.values(users));
+  });
+});
 
       const before = Array.isArray(loaded.data.messages) ? loaded.data.messages : [];
       const { keep, remove } = splitOldImages(before);
